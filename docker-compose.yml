@@ -1,0 +1,73 @@
+services:
+  frontend:
+    container_name: finanical_tracker_frontend
+    image: finanical_tracker_frontend:latest
+    ports:
+      - "5000:5000"
+    depends_on:
+      - backend
+    restart: always
+    environment:
+      - VITE_BACKEND_URL=http://localhost:4000
+
+  backend:
+    container_name: finanical_tracker_backend
+    image: finanical_tracker_backend:latest
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      # local database
+      MONGO_URI: mongodb://host.docker.internal:27017/finance_tracker
+      # mongo container
+      # MONGO_URI: mongodb://mongo:27017/finance_tracker
+      
+      # local redis container
+      REDIS_URL: redis://host.docker.internal:6379
+      # redis container
+      # REDIS_URL: redis://host.docker.internal:6379
+      ACCESS_TOKEN_SECRET: 526461cf9c7f190819de1b5d6ab6f3c3a6cd8fb354ea8d69222ab129405fe1935a85e74d2cc9cb84da989fc83c78c991cf133f678c2b5e1bbb03bc8926b23f1cb9b4401882b98d6203bfaaad152e9af99b6b5cadde7d52dd999a0993d8adc78e69b156b2a3ded7ac98448510dbbec60cf345a1ab90371a72ab9d08f565ff20a1
+      REFRESH_TOKEN_SECRET: 3eb3640cd203e43eb6d6d6361124365b0f932160c22918c7a495edb94a11979b12bc9bf1e74641962d45dbe9d18ebb23e3a73ebb5dfec4b4fec8c62ba0630aa836aece6402795f2f45adc12a2ee4774a70f97819058b03e427edfa0bbbd54b9156b416ba95126956d5abcd0a268cac7a9279020a95975be98ed6265fe3d59578
+      ACCESS_TOKEN_TTL: 15m
+      REFRESH_TOKEN_TTL: 7d
+    restart: always
+    depends_on:
+      - mongo
+      - redis
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:4000/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - mongo-data:/data/db
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    restart: always
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mongo-data:
