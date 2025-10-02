@@ -38,15 +38,15 @@ export interface UserObject {
 
 const options: CookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
+  secure: true,
+  sameSite: "none",
   path: "/",
 };
 
 const isHttpOptionsFalse: CookieOptions = {
   httpOnly: false,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
+  secure: true,
+  sameSite: "none",
   path: "/",
 };
 
@@ -188,7 +188,6 @@ export const Login = async (req: Request, res: Response) => {
         message: "Server configuration error",
       });
     }
-
     res.cookie("refresh_token", refreshToken, {
       ...options,
       maxAge: RefreshmaxAge,
@@ -302,7 +301,10 @@ export const Refresh = async (req: Request, res: Response) => {
       maxAge: AccessmaxAge,
     });
 
-    return res.json({ success: true, sessionId: newSession._id });
+    return res.json({
+      success: true,
+      sessionId: newSession._id,
+    });
   } catch (error: unknown) {
     const err = error instanceof Error ? error : new Error("Failed to Refresh");
     logger.error({ err }, "Error while refreshing token:");

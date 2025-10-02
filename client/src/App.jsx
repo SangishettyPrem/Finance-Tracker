@@ -53,10 +53,10 @@ const App = () => {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
+        <Route path="/" element={<Navigate to="/tracker" replace />} />
         <Route element={<AuthLayout />}>
           <Route path="/tracker" element={<AuthPage />} />
         </Route>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route element={<MainLayout />}>
           {routes.map((route, index) => (
             <Route

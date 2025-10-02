@@ -1,7 +1,7 @@
 import express from "express";
 import helmet from "helmet";
 import { connectGraphQL } from "@/GraphQL/graphql.config.js";
-import cors from "cors";
+import cors, { CorsOptions } from "cors";
 import { errorMiddleware } from "@/middlewares/error.js";
 import morgan from "morgan";
 import dotenv from "dotenv";
@@ -20,15 +20,40 @@ const app = express();
 
 app.use(
   helmet({
-    contentSecurityPolicy: envMode !== "DEVELOPMENT",
-    crossOriginEmbedderPolicy: envMode !== "DEVELOPMENT",
+    crossOriginResourcePolicy: false, // disable CORP block
   })
 );
 
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: "http://localhost:5000", credentials: true }));
+const whiteListedIp = [
+  "http://localhost:5000",
+  "https://financetrackerprem.netlify.app",
+];
+const corsOptions: CorsOptions = {
+  origin: function (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void
+  ) {
+    console.log("origin: ", origin);
+    if (origin && whiteListedIp.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Cookie",
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+};
+
+app.use(cors(corsOptions));
 app.use(morgan("dev"));
 
 app.get("/health", (req, res) => {
