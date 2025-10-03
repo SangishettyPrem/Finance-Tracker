@@ -203,6 +203,8 @@ export const Login = async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       message: "Login successful",
+      accessToken,
+      refreshToken,
     });
   } catch (error: unknown) {
     const err = error instanceof Error ? error : new Error("Failed to Login");
@@ -304,6 +306,8 @@ export const Refresh = async (req: Request, res: Response) => {
     return res.json({
       success: true,
       sessionId: newSession._id,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
     });
   } catch (error: unknown) {
     const err = error instanceof Error ? error : new Error("Failed to Refresh");

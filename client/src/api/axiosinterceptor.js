@@ -1,3 +1,4 @@
+import axios from "axios";
 import api from "./api";
 
 let isRefreshing = false;
@@ -14,12 +15,27 @@ const processQueue = (error, token = null) => {
     failedQueue = [];
 };
 
+api.interceptors.request.use(
+    async config => {
+        const access_token = localStorage.getItem('access_token');
+        if (access_token) {
+            config.headers['Authorization'] = 'Bearer ' + access_token;
+        }
+        return config;
+    },
+    error => {
+        return Promise.reject(error);
+    }
+)
+
+
 api.interceptors.response.use(
     response => response,
     async error => {
         const originalRequest = error.config;
         if (error.response?.status === 401 && (error.response.data.message === "jwt expired" || error.response.data.message === "Unauthorized") && !originalRequest._retry) {
             if (isRefreshing) {
+
                 return new Promise(function (resolve, reject) {
                     failedQueue.push({ resolve, reject });
                 }).then(token => {
@@ -33,7 +49,12 @@ api.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const refreshResponse = await api.post('/api/auth/v1/refresh', {}, { withCredentials: true });
+                const refreshResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/v1/refresh`, {}, {
+                    withCredentials: true, headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('refresh_token')
+                    }
+                });
                 if (refreshResponse.data.success) {
                     isRefreshing = false;
                     processQueue(null, refreshResponse.data.token);

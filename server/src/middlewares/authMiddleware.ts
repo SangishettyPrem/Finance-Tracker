@@ -30,7 +30,6 @@ export const isAuthenticated = async ({
     const token =
       req.cookies["access_token"] ||
       req.headers["authorization"]?.split(" ")[1];
-
     if (!token) {
       throw new GraphQLError("Token not provided", {
         extensions: {

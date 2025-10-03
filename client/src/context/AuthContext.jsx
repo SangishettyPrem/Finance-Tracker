@@ -12,6 +12,10 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await api.post(`/api/auth/v1/login`, newUserData, { withCredentials: true });
             if (response.data.success) {
+                localStorage.setItem('is-logged-in', true);
+                localStorage.setItem('access_token', response.data.accessToken);
+                localStorage.setItem('refresh_token', response.data.refreshToken);
+                debugger
                 setUser(response.data.user);
                 return { success: true };
             } else {
@@ -57,6 +61,8 @@ export const AuthProvider = ({ children }) => {
                 withCredentials: true
             });
             if (response.data.success) {
+                localStorage.setItem('access_token', response.data.accessToken);
+                localStorage.setItem('refresh_token', response.data.refreshToken);
                 return { success: true };
             } else {
                 return {
@@ -75,6 +81,9 @@ export const AuthProvider = ({ children }) => {
             setIsLogout(true);
             const response = await api.post(`/api/auth/v1/logout`, {}, { withCredentials: true });
             if (response.data.success) {
+                localStorage.removeItem('is-logged-in');
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
                 setUser(null);
                 setIsLogout(false);
                 return { success: true };

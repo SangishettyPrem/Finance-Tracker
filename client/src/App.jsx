@@ -19,7 +19,7 @@ const App = () => {
 
   useEffect(() => {
     async function init() {
-      const hasToken = document.cookie.includes("is-logged-in");
+      const hasToken = document.cookie.includes("is-logged-in") || localStorage.getItem("is-logged-in");
       if (!hasToken) {
         setUser(null);
         return;

@@ -36,7 +36,6 @@ const corsOptions: CorsOptions = {
     origin: string | undefined,
     callback: (err: Error | null, allow?: boolean) => void
   ) {
-    console.log("origin: ", origin);
     if (origin && whiteListedIp.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -44,12 +43,6 @@ const corsOptions: CorsOptions = {
     }
   },
   credentials: true,
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-Requested-With",
-    "Cookie",
-  ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 };
 

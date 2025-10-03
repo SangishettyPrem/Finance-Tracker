@@ -13,9 +13,15 @@ const refreshToken = async () => {
         return Promise.reject(error);
     }
 }
+const access_token = localStorage.getItem('access_token');
+
 const httpLink = new HttpLink({
     uri: import.meta.env.VITE_BACKEND_URL + "/graphql",
     credentials: "include",
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + access_token
+    }
 });
 
 const errorLink = new ErrorLink(({ error, operation, forward }) => {
