@@ -47,7 +47,7 @@ This project follows a client-server architecture.
 
 ### Server
 
-- **Frameworks:** Express.js, GraphQL (e.g., Apollo Server)
+- **Frameworks:** Express.js,Redis, GraphQL (e.g., Apollo Server)
 
 ### Client
 
